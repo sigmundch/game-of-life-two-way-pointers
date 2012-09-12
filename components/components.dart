@@ -185,7 +185,6 @@ class ControlPanel implements WebComponent {
 
   void created(ShadowRoot root) {
     _root = root;
-    element.xtag = this;
   }
 
   void inserted() { }
@@ -243,8 +242,6 @@ class GameOfLife implements WebComponent {
   /** How many milliseconds between steps? */
   int _stepTime;
 
-  Map<String, WebComponent> childTable;
-
   void set stepTime(int time) {
     _stepTime = time;
   }
@@ -262,7 +259,6 @@ class GameOfLife implements WebComponent {
     element.xtag = this;
     on = new GameOfLifeEvents();
     lastRefresh = 0;
-    childTable = new Map<String, WebComponent>();
     
     // At present we must do this initialization here -- see bug 4957.
     GAME_SIZE = DEFAULT_GAME_SIZE;
@@ -284,31 +280,17 @@ class GameOfLife implements WebComponent {
    * Cells to determine their neighbors.
    */
   _query(String selector) {
-    var result = _root.query(selector);
-    var lookup = childTable[result.id];
-    if (lookup != null) {
-      return lookup;
-    }
-    return result;
+    return _root.query(selector).xtag;
   }
 
   _queryAll(String selector) {
     var result = _root.queryAll(selector);
-    return result.map((elt) {
-      var lookup = childTable[elt.id];
-      if (lookup != null) {
-        return lookup;
-      }
-      return elt;
-    });
+    return result.map((elt) => elt.xtag);
   }
 
   _addShadowChild(child) {
     if (child is WebComponent) {
       _root.nodes.add(child.element);
-      // HACK relies on all elemenents having distinct ids, since DOM nodes
-      // aren't hashable
-      childTable[child.element.id] = child;
     } else {
       _root.nodes.add(child);
     }
@@ -373,11 +355,6 @@ class GameOfLife implements WebComponent {
 
     computedStyles.innerHTML = computedStylesBuffer.toString();
 
-    // HACK HACK HACK -- do this before adding cells so that perf numbers don't
-    // change too much
-    var controlPanelTmp = manager[_query('div[is="x-control-panel"]')];
-    childTable[controlPanelTmp.element.id] = controlPanelTmp;
-
     // add cells
     _forEachCell((i, j) {
       var cell = new Cell();
@@ -388,6 +365,7 @@ class GameOfLife implements WebComponent {
 
     // bind the control panel
     var controlPanel = _query('div[is="x-control-panel"]');
+    print(controlPanel);
     controlPanel.game = this;
     controlPanel.bound();
 
