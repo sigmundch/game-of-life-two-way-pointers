@@ -185,6 +185,7 @@ class ControlPanel implements WebComponent {
 
   void created(ShadowRoot root) {
     _root = root;
+    element.xtag = this;
   }
 
   void inserted() { }
@@ -365,7 +366,6 @@ class GameOfLife implements WebComponent {
 
     // bind the control panel
     var controlPanel = _query('div[is="x-control-panel"]');
-    print(controlPanel);
     controlPanel.game = this;
     controlPanel.bound();
 
