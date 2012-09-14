@@ -222,7 +222,6 @@ class GameOfLife implements WebComponent {
   Element element;
   ShadowRoot _root;
   GameOfLifeEvents on;
-  Timer timer;
   int lastRefresh;
   bool _stop;
   StyleElement computedStyles;
